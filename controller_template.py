@@ -1,6 +1,7 @@
 import os
 import sys
 from maya import cmds
+from maya import mel
 import names
 
 
@@ -75,8 +76,44 @@ class ControllerTemplate(object):
                 cmds.warning("Can't import default file")
                 break
             if ctrl_type in str(name):
-                imp = cmds.file(self.path+name, i=True, rnn=True)
-                control.append(imp)
+                control_file = open(self.path+name, 'r')
+                lines = control_file.readlines()
+                concatenated_lines = []
+                node_lines = lines[5:-1]
+                list_length = len(node_lines)
+                line_number = 0
+                new_line = ''
+                while not line_number == list_length:
+                    if os.path.exists('E:/Rigging/Rigging Framework/Component Rigger/controllers/insurance.txt'):
+                        raw_line = r'{}'.format(node_lines[line_number])
+                        if raw_line.strip() == ';':
+                            new_line += raw_line
+                            concatenated_lines.append(new_line)
+                            new_line = ''
+                        elif ';' in raw_line:
+                            concatenated_lines.append(raw_line)
+                        elif ';' not in raw_line:
+                            new_line += raw_line
+                        line_number += 1
+                    else:
+                        break
+                control_transform = ''
+                result = None
+                for command in concatenated_lines:
+                    if 'uid' in command.strip():
+                        pass
+                    else:
+                        if 'template' in command and 'Shape' in command:
+                            new_command = command.split('-p')[0]+'-p "'+control_transform+'" ;'
+                            mel.eval(new_command.strip())
+                        else:
+                            result = mel.eval(command.strip())
+                    if result is not None:
+                        if 'template' in result and 'Shape' not in result:
+                            control_transform = result
+                            control.append(result)
+                open(self.path+name, 'r').close()
+        control = list(set(control))
         if len(control) < 2:
             return control
         else:

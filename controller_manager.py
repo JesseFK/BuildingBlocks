@@ -42,7 +42,7 @@ class ControllerManager(object):
         dag_mod = om.MDagModifier()
         control_import = self.manager.import_controller(control)
         if control_import:
-            control_import = control_import[0][0]
+            control_import = control_import[0]
             selection.add(control_import)
             self.control = selection.getDependNode(0)
             dag_mod.renameNode(self.control, name+'_ctrl')
