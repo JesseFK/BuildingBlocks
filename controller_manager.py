@@ -40,7 +40,7 @@ class ControllerManager(object):
         if name is None:
             name = object1_name
         dag_mod = om.MDagModifier()
-        control_import = self.manager.import_controller(control)
+        control_import = self.manager.import_controller(ctrl_type=control)
         if control_import:
             control_import = control_import[0]
             selection.add(control_import)

@@ -223,12 +223,10 @@ class Helper(object):
         dag_it = om.MItDag()
         root_joint_list = om.MSelectionList()
         while not dag_it.isDone():
-            print dag_it.getPath().apiType(), dag_it.depth()
             if dag_it.depth() > 1:
                 dag_it.next()
             else:
                 dag_path = dag_it.getPath()
-                print dag_path.apiType()
                 if dag_path.apiType() == 121:
                     root_joint_list.add(dag_it.currentItem())
                 dag_it.next()

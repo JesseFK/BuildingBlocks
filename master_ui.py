@@ -5,6 +5,7 @@ from shiboken2 import wrapInstance
 import maya.OpenMayaUI as omui
 from helper import Helper
 from maya.api import OpenMaya as om
+from leg_rigger_ui import LegRiggerUI
 from leg_component import LegComponent
 from foot_component import FootComponent
 
@@ -19,15 +20,26 @@ class MasterUI(QtWidgets.QDialog):
 
     def __init__(self, parent=maya_main_window()):
         super(MasterUI, self).__init__(parent)
-        self.setWindowTitle("Rigger")
+        self.setWindowTitle("Building Blocks")
         self.setMinimumWidth(200)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
 
+        self.index = None
         self.create_widgets()
         self.set_widget_size()
         self.create_layouts()
         self.populate_combo_box()
         self.create_connections()
+        try:
+            self.index = self.root_list.currentIndex()
+        except ValueError:
+            pass
+        if self.index is None:
+            print self.index
+            self.leg_ui = LegRiggerUI(root=None)
+        else:
+            print self.index
+            self.leg_ui = LegRiggerUI(root=self.root_joints.getDependNode(self.index))
 
     def create_widgets(self):
         self.root_list = QtWidgets.QComboBox()
@@ -73,9 +85,12 @@ class MasterUI(QtWidgets.QDialog):
         joints_it = om.MItSelectionList(self.root_joints)
         while not joints_it.isDone():
             name = om.MFnDependencyNode(joints_it.getDependNode()).name()
-            print(name)
+            # print(name)
             self.root_list.addItem(name)
             joints_it.next()
 
     def create_connections(self):
-        pass
+        self.leg_button.clicked.connect(self.show_leg_rigger)
+
+    def show_leg_rigger(self):
+        self.leg_ui.show()

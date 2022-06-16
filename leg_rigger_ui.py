@@ -17,8 +17,9 @@ def maya_main_window():
 
 class LegRiggerUI(QtWidgets.QDialog):
 
-    def __init__(self, parent=maya_main_window()):
+    def __init__(self, root, parent=maya_main_window()):
         super(LegRiggerUI, self).__init__(parent)
+        self.root = root
         self.setWindowTitle("Leg Rigger")
         self.setMinimumWidth(200)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
@@ -26,12 +27,17 @@ class LegRiggerUI(QtWidgets.QDialog):
         self.create_widgets()
         self.create_layouts()
         self.create_connections()
+        print self.root
+        if self.root is not None:
+            self.populate_combo_box()
 
         self.foot = FootComponent('l')
 
     def create_widgets(self):
         self.instruction = QtWidgets.QLabel('Select start and end of joint chain (e.g. hip and ankle) and fill in '
                                             'variables. When done press "Create"')
+        self.start_box = QtWidgets.QComboBox()
+        self.end_box = QtWidgets.QComboBox()
         self.line_group = QtWidgets.QLineEdit("LEG_RIG")
         self.line_side = QtWidgets.QLineEdit("l")
         self.checkbox1 = QtWidgets.QCheckBox()
@@ -46,6 +52,8 @@ class LegRiggerUI(QtWidgets.QDialog):
         self.form_layout = QtWidgets.QFormLayout()
         self.instruction.setWordWrap(True)
         self.form_layout.addRow("Instruction:", self.instruction)
+        self.form_layout.addRow("Start Joint:", self.start_box)
+        self.form_layout.addRow("End Joint:", self.end_box)
         self.form_layout.addRow("Rig Name:", self.line_group)
         self.form_layout.addRow("Side:", self.line_side)
         self.form_layout.addRow("IKFK Blend:", self.checkbox1)
@@ -79,6 +87,15 @@ class LegRiggerUI(QtWidgets.QDialog):
         self.create_button.clicked.connect(self.create_rig)
         self.guide_button.clicked.connect(self.create_foot_guides)
         self.checkbox2.toggled.connect(self.show_guide_button)
+
+    def populate_combo_box(self):
+        hierarchy_it = om.MItDag()
+        hierarchy_it.reset(self.root)
+        while not hierarchy_it.isDone():
+            name = om.MFnDependencyNode(hierarchy_it.currentItem()).name()
+            self.start_box.addItem(name)
+            self.end_box.addItem(name)
+            hierarchy_it.next()
 
     def create_leg_rig(self):
         group_name = self.line_group.text()

@@ -32,7 +32,7 @@ class ControllerTemplate(object):
         ctrl_names = []
         for num in line_numbers:
             line_split = lines[num].split(' ')
-            name = line_split[-1].rstrip('";\n').lstrip('"')
+            name = line_split[-1].strip().rstrip('";\n').lstrip('"')
             if 'lightLinker' in name:
                 pass
             else:
@@ -84,19 +84,16 @@ class ControllerTemplate(object):
                 line_number = 0
                 new_line = ''
                 while not line_number == list_length:
-                    if os.path.exists('E:/Rigging/Rigging Framework/Component Rigger/controllers/insurance.txt'):
-                        raw_line = r'{}'.format(node_lines[line_number])
-                        if raw_line.strip() == ';':
-                            new_line += raw_line
-                            concatenated_lines.append(new_line)
-                            new_line = ''
-                        elif ';' in raw_line:
-                            concatenated_lines.append(raw_line)
-                        elif ';' not in raw_line:
-                            new_line += raw_line
-                        line_number += 1
-                    else:
-                        break
+                    raw_line = r'{}'.format(node_lines[line_number])
+                    if raw_line.strip() == ';':
+                        new_line += raw_line
+                        concatenated_lines.append(new_line)
+                        new_line = ''
+                    elif ';' in raw_line:
+                        concatenated_lines.append(raw_line)
+                    elif ';' not in raw_line:
+                        new_line += raw_line
+                    line_number += 1
                 control_transform = ''
                 result = None
                 for command in concatenated_lines:
